@@ -8,7 +8,6 @@ import reactor.core.publisher.Mono;
  * 异常处理工具
  *
  * @author wangzheng
- * @see
  * @since 1.0
  */
 public class ErrorUtils {
@@ -17,7 +16,17 @@ public class ErrorUtils {
         return Mono.error(() -> new NotFoundException(message));
     }
 
-    public static <T> Mono<T> accessDeny(String message) {
-        return Mono.error(() -> new AccessDenyException(message));
+    @SafeVarargs
+    public static boolean hasException(Throwable e, Class<? extends Throwable>... target) {
+        Throwable cause = e;
+        while (cause != null) {
+            for (Class<? extends Throwable> aClass : target) {
+                if (aClass.isInstance(cause)) {
+                    return true;
+                }
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 }
